@@ -1671,23 +1671,17 @@ test_circuit_send_next_onion_skin(void *arg)
   extend_info_t fakehop;
   memset(&fakehop, 0, sizeof(fakehop));
   extend_info_t *single_fakehop = &fakehop;
-  extend_info_t *multi_fakehop[DEFAULT_ROUTE_LEN] = {&fakehop,
-                                                     &fakehop,
-                                                     &fakehop};
+  extend_info_t *multi_fakehop[DEFAULT_ROUTE_LEN] = {&fakehop};
 
   extend_info_t ipv6_hop;
   memset(&ipv6_hop, 0, sizeof(ipv6_hop));
   tor_addr_parse(&ipv6_hop.orports[0].addr, "1::2");
-  extend_info_t *multi_ipv6_hop[DEFAULT_ROUTE_LEN] = {&ipv6_hop,
-                                                      &ipv6_hop,
-                                                      &ipv6_hop};
+  extend_info_t *multi_ipv6_hop[DEFAULT_ROUTE_LEN] = {&ipv6_hop};
 
   extend_info_t ipv4_hop;
   memset(&ipv4_hop, 0, sizeof(ipv4_hop));
   tor_addr_from_ipv4h(&ipv4_hop.orports[0].addr, 0x20304050);
-  extend_info_t *multi_ipv4_hop[DEFAULT_ROUTE_LEN] = {&ipv4_hop,
-                                                      &ipv4_hop,
-                                                      &ipv4_hop};
+  extend_info_t *multi_ipv4_hop[DEFAULT_ROUTE_LEN] = {&ipv4_hop};
 
   mock_circuit_deliver_create_cell_expect_direct = false;
   MOCK(circuit_deliver_create_cell, mock_circuit_deliver_create_cell);
@@ -1895,7 +1889,7 @@ test_cpath_build_state_to_crn_ipv6_extend_flag(void *arg)
   state.desired_path_len = DEFAULT_ROUTE_LEN;
   tt_int_op(
       cpath_build_state_to_crn_ipv6_extend_flag(&state,
-                                                DEFAULT_ROUTE_LEN - 2),
+                                                DEFAULT_ROUTE_LEN),
       OP_EQ, 0);
 
   /* Pass both checks */
@@ -1904,7 +1898,7 @@ test_cpath_build_state_to_crn_ipv6_extend_flag(void *arg)
   state.is_ipv6_selftest = 1;
   tt_int_op(
       cpath_build_state_to_crn_ipv6_extend_flag(&state,
-                                                DEFAULT_ROUTE_LEN - 2),
+                                                DEFAULT_ROUTE_LEN),
       OP_EQ, CRN_INITIATE_IPV6_EXTEND);
 
   /* Check that no other flags are handled */

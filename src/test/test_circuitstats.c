@@ -47,9 +47,7 @@ add_opened_threehop(void)
   memset(&circ_start_time, 0, sizeof(circ_start_time));
   extend_info_t fakehop;
   memset(&fakehop, 0, sizeof(fakehop));
-  extend_info_t *fakehop_list[DEFAULT_ROUTE_LEN] = {&fakehop,
-                                                    &fakehop,
-                                                    &fakehop};
+  extend_info_t *fakehop_list[DEFAULT_ROUTE_LEN] = {&fakehop};
 
   return new_test_origin_circuit(true,
                                  circ_start_time,

@@ -323,9 +323,6 @@ static int
 pathbias_should_count(origin_circuit_t *circ)
 {
 #define PATHBIAS_COUNT_INTERVAL (600)
-  static ratelim_t count_limit =
-    RATELIM_INIT(PATHBIAS_COUNT_INTERVAL);
-  char *rate_msg = NULL;
 
   /* We can't do path bias accounting without entry guards.
    * Testing and controller circuits also have no guards.
@@ -370,41 +367,6 @@ pathbias_should_count(origin_circuit_t *circ)
     /* (In this case, we _don't_ check to see if shouldcount is changing,
      * since it's possible that an already-created circuit later gets extended
      * by the controller. */
-    circ->pathbias_shouldcount = PATHBIAS_SHOULDCOUNT_IGNORED;
-    return 0;
-  }
-
-  /* Completely ignore one hop circuits */
-  if (circ->build_state->onehop_tunnel ||
-      circ->build_state->desired_path_len == 1) {
-    /* Check for inconsistency */
-    if (circ->build_state->desired_path_len != 1 ||
-        !circ->build_state->onehop_tunnel) {
-      if ((rate_msg = rate_limit_log(&count_limit, approx_time()))) {
-        log_info(LD_BUG,
-               "One-hop circuit %d has length %d. Path state is %s. "
-               "Circuit is a %s currently %s.%s",
-               circ->global_identifier,
-               circ->build_state->desired_path_len,
-               pathbias_state_to_string(circ->path_state),
-               circuit_purpose_to_string(circ->base_.purpose),
-               circuit_state_to_string(circ->base_.state),
-               rate_msg);
-        tor_free(rate_msg);
-      }
-      tor_fragile_assert();
-    }
-
-    /* Check to see if the shouldcount result has changed due to a
-     * unexpected change that would affect our results */
-    if (circ->pathbias_shouldcount == PATHBIAS_SHOULDCOUNT_COUNTED) {
-      log_info(LD_BUG,
-               "One-hop circuit %d is now being ignored despite being counted "
-               "in the past. Purpose is %s, path state is %s",
-               circ->global_identifier,
-               circuit_purpose_to_string(circ->base_.purpose),
-               pathbias_state_to_string(circ->path_state));
-    }
     circ->pathbias_shouldcount = PATHBIAS_SHOULDCOUNT_IGNORED;
     return 0;
   }
